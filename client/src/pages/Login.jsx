@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [userData, setUserData] = useState({
@@ -8,10 +9,12 @@ const Login = () => {
     password: "",
   });
 
+  const navigate = useNavigate();
+
   const handleLogin = (e) => {
     const { name, value } = e.target;
     setUserData((prev) => ({ ...prev, [name]: value }));
-    console.log(userData);
+    navigate("/dashboard");
   };
   return (
     <div

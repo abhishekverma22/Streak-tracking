@@ -1,21 +1,77 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaGoogle, FaGithub, FaFacebook } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const Signup = () => {
+  const navigate = useNavigate();
+
   const [userData, setUserData] = useState({
-    firstName: "",
-    lastName: "",
-    dob: "",
+    first_name: "",
+    last_name: "",
     email: "",
-    phone: "",
+    phone_number: "",
     password: "",
   });
+
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    let newErrors = {};
+    if (!userData.first_name.trim()) {
+      newErrors.first_name = "First name is required";
+    }
+    if (!userData.last_name.trim()) {
+      newErrors.last_name = "Last name is required";
+    }
+    if (!userData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.email)) {
+      newErrors.email = "Invalid email format";
+    }
+    if (!userData.phone_number.trim()) {
+      newErrors.phone_number = "Phone number is required";
+    } else if (userData.phone_number.length !== 10) {
+      newErrors.phone_number = "Phone number must be 10 digits";
+    }
+    if (!userData.password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (userData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" })); // Remove error when user types
+  };
+
+  const onSubmit = async () => {
+    if (!validate()) return;
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/signup",
+        { ...userData },
+        { withCredentials: true }
+      );
+      if (response.data.success) {
+        toast.success("Account created successfully! Redirecting...");
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+      }
+    } catch (error) {
+      const msg =
+        error.response?.data?.msg || "Signup failed. Try again later.";
+      toast.error(msg);
+    }
   };
 
   return (
@@ -52,27 +108,41 @@ relative overflow-hidden flex justify-center items-center px-4"
 
         {/* First & Last Name */}
         <div className="flex gap-3 w-full">
-          <motion.input
-            type="text"
-            name="firstName"
-            value={userData.firstName}
-            onChange={handleChange}
-            placeholder="First Name"
-            whileFocus={{ scale: 1.03, borderColor: "#6C63FF" }}
-            className="p-3 rounded-lg outline-none border border-gray-200 
-            text-white w-full text-base"
-          />
+          {/* First Name */}
+          <div className="w-full">
+            <motion.input
+              type="text"
+              name="first_name"
+              value={userData.first_name}
+              onChange={handleChange}
+              placeholder="First Name"
+              whileFocus={{ scale: 1.03, borderColor: "#6C63FF" }}
+              className={`p-3 rounded-lg outline-none border ${
+                errors.first_name ? "border-red-500" : "border-gray-200"
+              } text-white w-full text-base`}
+            />
+            {errors.first_name && (
+              <p className="text-red-400 text-sm mt-2">{errors.first_name}</p>
+            )}
+          </div>
 
-          <motion.input
-            type="text"
-            placeholder="Last Name"
-            name="lastName"
-            value={userData.lastName}
-            onChange={handleChange}
-            whileFocus={{ scale: 1.03, borderColor: "#6C63FF" }}
-            className="p-3 rounded-lg outline-none border border-gray-200 
-            text-white w-full text-base"
-          />
+          {/* Last Name */}
+          <div className="w-full">
+            <motion.input
+              type="text"
+              placeholder="Last Name"
+              name="last_name"
+              value={userData.last_name}
+              onChange={handleChange}
+              whileFocus={{ scale: 1.03, borderColor: "#6C63FF" }}
+              className={`p-3 rounded-lg outline-none border ${
+                errors.last_name ? "border-red-500" : "border-gray-200"
+              } text-white w-full text-base`}
+            />
+            {errors.last_name && (
+              <p className="text-red-400 text-sm mt-2">{errors.last_name}</p>
+            )}
+          </div>
         </div>
 
         {/* Email */}
@@ -83,21 +153,29 @@ relative overflow-hidden flex justify-center items-center px-4"
           value={userData.email}
           onChange={handleChange}
           whileFocus={{ scale: 1.03, borderColor: "#6C63FF" }}
-          className="p-3 rounded-lg outline-none border border-gray-200 
-          text-white w-full text-base"
+          className={` p-3 rounded-lg outline-none border ${
+            errors.email ? "border-red-500" : "border-gray-200"
+          } text-white w-full text-base`}
         />
+        {errors.email && (
+          <p className="text-red-400 text-sm -mt-4">{errors.email}</p>
+        )}
 
         {/* Phone */}
         <motion.input
           type="number"
           placeholder="Phone Number"
-          name="phone"
-          value={userData.phone}
+          name="phone_number"
+          value={userData.phone_number}
           onChange={handleChange}
           whileFocus={{ scale: 1.03, borderColor: "#6C63FF" }}
-          className="p-3 rounded-lg outline-none border border-gray-200 
-          text-white w-full text-base"
+          className={`p-3 rounded-lg outline-none border ${
+            errors.phone_number ? "border-red-500" : "border-gray-200"
+          } text-white w-full text-base`}
         />
+        {errors.phone_number && (
+          <p className="text-red-400 text-sm -mt-4">{errors.phone_number}</p>
+        )}
 
         {/* Password */}
         <motion.input
@@ -107,13 +185,17 @@ relative overflow-hidden flex justify-center items-center px-4"
           value={userData.password}
           onChange={handleChange}
           whileFocus={{ scale: 1.03, borderColor: "#6C63FF" }}
-          className="p-3 rounded-lg outline-none border border-gray-200 
-          text-white w-full text-base"
+          className={`p-3 rounded-lg outline-none border ${
+            errors.password ? "border-red-500" : "border-gray-200"
+          } text-white w-full text-base`}
         />
+        {errors.password && (
+          <p className="text-red-400 text-sm -mt-4">{errors.password}</p>
+        )}
 
         {/* Sign Up Button */}
         <motion.button
-          onClick={handleChange}
+          onClick={onSubmit}
           whileTap={{ scale: 0.95 }}
           className="bg-[#817af5] text-white p-3 rounded-lg tracking-wider 
           font-semibold text-lg w-full cursor-pointer hover:bg-[#6C63FF]"

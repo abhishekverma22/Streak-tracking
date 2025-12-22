@@ -38,12 +38,12 @@ const UserInfo = ({ onClose }) => {
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
-      {/* Mobile Close Button */}
+      {/* Close Button */}
       <button
         onClick={onClose}
-        className="fixed top-5 right-5 z-50 text-white text-4xl font-light hover:text-amber-400 sm:hidden"
+        className="fixed top-3 right-4 z-50 text-white text-4xl font-light hover:text-amber-400 sm:hidden"
       >
-        x
+        ×
       </button>
 
       <motion.div
@@ -58,37 +58,12 @@ const UserInfo = ({ onClose }) => {
         {/* Desktop Close Button */}
         <button
           onClick={onClose}
-          className="hidden sm:block absolute top-6 right-6 text-white text-4xl font-light hover:text-amber-400 z-10"
+          className="hidden sm:block absolute top-0 right-3 text-white text-4xl font-light hover:text-amber-400 z-10"
         >
           ×
         </button>
 
-        <div className="flex flex-col gap-8">
-          {/* Avatar + Name */}
-
-          <motion.div className="text-center" variants={item}>
-            <div
-              className="
-      w-10 h-10 sm:w-20 sm:h-20
-      mx-auto rounded-full bg-amber-400 
-      flex items-center justify-center 
-      text-white text-3xl sm:text-5xl font-bold shadow-2xl
-    "
-            >
-              {user.firstName[0]}
-            </div>
-
-            <h2
-              className="
-      mt-4 
-      text-2xl sm:text-4xl 
-      font-bold
-    "
-            >
-              {user.firstName} {user.lastName}
-            </h2>
-          </motion.div>
-
+        <div className="flex flex-col gap-8 mt-8">
           {/* Personal Details */}
           <motion.div
             className="bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl p-4"
@@ -113,9 +88,7 @@ const UserInfo = ({ onClose }) => {
                 },
               ].map((field, i) => (
                 <motion.div key={i} variants={item}>
-                  <span className="font-sm text-gray-300">
-                    {field.label}:
-                  </span>{" "}
+                  <span className="font-sm text-gray-300">{field.label}:</span>{" "}
                   <span className="text-white">{field.value}</span>
                 </motion.div>
               ))}
@@ -131,7 +104,7 @@ const UserInfo = ({ onClose }) => {
             </motion.button>
           </motion.div>
 
-          {/* Stats – 2×2 on mobile, 1×4 on desktop */}
+          {/* Stats */}
           <motion.div
             className="grid grid-cols-2 sm:grid-cols-4 gap-5"
             variants={container}

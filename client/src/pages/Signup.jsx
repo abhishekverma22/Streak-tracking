@@ -50,7 +50,7 @@ const Signup = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" })); // Remove error when user types
+    setErrors((prev) => ({ ...prev, [name]: "" })); 
   };
 
   const onSubmit = async () => {

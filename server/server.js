@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import connectDB from "./src/configs/connectDB.js";
 import userRouter from "./src/routes/user.route.js";
 import cors from "cors";
+import taskRouter from "./src/routes/addTask.route.js";
+
 
 dotenv.config();
 
@@ -25,6 +27,8 @@ app.get("/test", (req, res) => {
 });
 
 app.use("/api", userRouter);
+app.use("/api", taskRouter);
+
 connectDB().then(() => {
   app.listen(PORT, () => console.log("Server running on port number", PORT));
 });

@@ -1,6 +1,8 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+
 import UserModel from "../models/user.model.js";
+import generateAccessToken from "../utils/generateAccessToken.js";
+import generateRefreshToken from "../utils/generateRefreshToken.js";
 
 const createUser = async (req, res) => {
   try {
@@ -52,7 +54,7 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     // Check if email and password are provided
-    if (!email && !password) {
+    if (!email || !password) {
       return res.status(400).json({
         msg: "Email and password are required",
         success: false,
@@ -61,9 +63,9 @@ const loginUser = async (req, res) => {
     }
 
     // Find user by email
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email }).select("+password");
     if (!user) {
-      return res.status(400).json({
+      return res.status(401).json({
         msg: "User not found",
         success: false,
         error: true,
@@ -71,8 +73,8 @@ const loginUser = async (req, res) => {
     }
 
     // Compare password
-
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) {
       return res.status(400).json({
         msg: "Invalid password",
@@ -81,7 +83,27 @@ const loginUser = async (req, res) => {
       });
     }
 
-  } catch (error) {}
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    user.refresh_token = refreshToken;
+    await user.save();
+    // Success response
+    return res.status(200).json({
+      msg: "Login successful",
+      success: true,
+      error: false,
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      msg: error.message || "Internal server error",
+      success: false,
+      error: true,
+    });
+  }
 };
 
-export default createUser;
+
+export { createUser, loginUser };
